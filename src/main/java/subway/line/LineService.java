@@ -5,6 +5,9 @@ import org.springframework.transaction.annotation.Transactional;
 import subway.Station;
 import subway.StationService;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @Transactional(readOnly = true)
 public class LineService {
@@ -24,12 +27,18 @@ public class LineService {
         return createLineResponse(line);
     }
 
+    public List<LineResponse> findAllLines() {
+        return lineRepository.findAll().stream()
+                .map(this::createLineResponse)
+                .collect(Collectors.toList());
+    }
+
     private LineResponse createLineResponse(Line line) {
         return new LineResponse(
                 line.getId(),
                 line.getName(),
                 line.getColor(),
-                line.getStations()
+                List.of(line.getUpStation(), line.getDownStation())
         );
     }
 }

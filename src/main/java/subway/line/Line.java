@@ -10,14 +10,22 @@ public class Line {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(length = 20, nullable = false)
     private String name;
+
     @Column(length = 15, nullable = false)
     private String color;
 
-    @Embedded
-    private Stations stations = new Stations();
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "up_station_id", nullable = false)
+    private Station upStation;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "down_station_id", nullable = false)
+    private Station downStation;
+
+    @Column(nullable = false)
     private int distance;
 
     public Line() {
@@ -26,21 +34,9 @@ public class Line {
     public Line(String name, String color, Station upStation, Station downStation, int distance) {
         this.name = name;
         this.color = color;
-        addStation(upStation);
-        addStation(downStation);
+        this.upStation = upStation;
+        this.downStation = downStation;
         this.distance = distance;
-    }
-
-    public void addStation(Station station) {
-        stations.add(station);
-    }
-
-    public void removeStation(Station station){
-        stations.remove(station);
-    }
-
-    public List<Station> getStations() {
-        return stations.getStations();
     }
 
     public Long getId() {
@@ -58,4 +54,13 @@ public class Line {
     public int getDistance() {
         return distance;
     }
+
+    public Station getUpStation() {
+        return upStation;
+    }
+
+    public Station getDownStation() {
+        return downStation;
+    }
 }
+
