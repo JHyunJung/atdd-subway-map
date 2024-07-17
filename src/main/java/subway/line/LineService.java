@@ -33,6 +33,11 @@ public class LineService {
                 .collect(Collectors.toList());
     }
 
+    public LineResponse find(Long id) {
+        Line line = findById(id);
+        return createLineResponse(line);
+    }
+
     private LineResponse createLineResponse(Line line) {
         return new LineResponse(
                 line.getId(),
@@ -40,5 +45,21 @@ public class LineService {
                 line.getColor(),
                 List.of(line.getUpStation(), line.getDownStation())
         );
+    }
+
+    private Line findById(Long id) {
+        return lineRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당하는 노선이 존재하지 않습니다."));
+    }
+
+    @Transactional
+    public void updateLine(Long id, LineRequest lineRequest) {
+        Line line = findById(id);
+        line.update(lineRequest.getName(), lineRequest.getColor());
+    }
+
+    @Transactional
+    public void deleteById(Long id) {
+        lineRepository.deleteById(id);
     }
 }
