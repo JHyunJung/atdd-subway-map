@@ -25,13 +25,13 @@ public class LineAcceptanceTest {
 
     private static final String BASE_URL = "/lines";
     private static final String STATION_URL = "/stations";
-    private Station station1, station2, station3;
+    private Station gangnamStation, yeoksamStation, yangjaeStation;
 
     @BeforeEach
     void setUp() {
-        station1 = createStation("강남역");
-        station2 = createStation("역삼역");
-        station3 = createStation("양재역");
+        gangnamStation = createStation("강남역");
+        yeoksamStation = createStation("역삼역");
+        yangjaeStation = createStation("양재역");
     }
 
     @DisplayName("지하철 노선 생성")
@@ -43,13 +43,13 @@ public class LineAcceptanceTest {
         int distance = 10;
 
         // when
-        ExtractableResponse<Response> response = createLine(name, color, station1.getId(), station2.getId(), distance);
+        ExtractableResponse<Response> response = createLine(name, color, gangnamStation.getId(), yeoksamStation.getId(), distance);
 
         // then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
         assertThat(getResponseBody(response, "name")).isEqualTo(name);
         assertThat(getResponseBody(response, "color")).isEqualTo(color);
-        assertThat(getResponseBody(response, "stations")).contains(station1.getName(), station2.getName());
+        assertThat(getResponseBody(response, "stations")).contains(gangnamStation.getName(), yeoksamStation.getName());
     }
 
     @DisplayName("지하철 노선 목록 조회")
@@ -65,8 +65,8 @@ public class LineAcceptanceTest {
         List<LineResponse> lines = response.jsonPath().getList(".", LineResponse.class);
         assertThat(lines).hasSize(2);
         assertThat(lines).extracting("name").containsExactly("2호선", "신분당선");
-        assertThat(lines.get(0).getStations().get(1).getId()).isEqualTo(station2.getId());
-        assertThat(lines.get(1).getStations().get(1).getId()).isEqualTo(station3.getId());
+        assertThat(lines.get(0).getStations().get(1).getId()).isEqualTo(yeoksamStation.getId());
+        assertThat(lines.get(1).getStations().get(1).getId()).isEqualTo(yangjaeStation.getId());
     }
 
     @DisplayName("지하철 노선 조회")
@@ -76,20 +76,20 @@ public class LineAcceptanceTest {
         createTestLines();
 
         // when
-        ExtractableResponse<Response> response = findLine(1L);
+        ExtractableResponse<Response> response = findLine(gangnamStation.getId());
 
         // then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(getResponseBody(response, "name")).isEqualTo("2호선");
         assertThat(getResponseBody(response, "color")).isEqualTo("bg-green-700");
-        assertThat(getResponseBody(response, "stations")).contains(station1.getName(), station2.getName());
+        assertThat(getResponseBody(response, "stations")).contains(gangnamStation.getName(), yeoksamStation.getName());
     }
 
     @DisplayName("지하철 노선 수정")
     @Test
     void updateLineTest() {
         // given
-        createLine("신분당선", "bg-red-600", station1.getId(), station2.getId(), 10);
+        createLine("신분당선", "bg-red-600", gangnamStation.getId(), yeoksamStation.getId(), 10);
 
         // when
         ExtractableResponse<Response> response = updateLine(1L, "3호선", "bg-blue-600");
@@ -102,7 +102,7 @@ public class LineAcceptanceTest {
     @Test
     void deleteLineTest() {
         // given
-        createLine("신분당선", "bg-red-600", station1.getId(), station2.getId(), 10);
+        createLine("신분당선", "bg-red-600", gangnamStation.getId(), yeoksamStation.getId(), 10);
 
         // when
         ExtractableResponse<Response> deleteResponse = deleteLine(1L);
@@ -114,8 +114,8 @@ public class LineAcceptanceTest {
     }
 
     private void createTestLines() {
-        createLine("2호선", "bg-green-700", station1.getId(), station2.getId(), 20);
-        createLine("신분당선", "bg-red-600", station1.getId(), station3.getId(), 10);
+        createLine("2호선", "bg-green-700", gangnamStation.getId(), yeoksamStation.getId(), 20);
+        createLine("신분당선", "bg-red-600", gangnamStation.getId(), yangjaeStation.getId(), 10);
     }
 
     private ExtractableResponse<Response> createLine(String name, String color, Long upStationId, Long downStationId, int distance) {
